@@ -20,6 +20,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 @ExtendWith(WireMockExtension.class)
 class BeerOrderStatusChangeEventListenerTest {
 
+    /*
+        sarà managed da wiremock extensions e sarà esposto su una porta random
+     */
     @Managed
     WireMockServer wireMockServer = with(wireMockConfig().dynamicPort());
 
@@ -35,10 +38,16 @@ class BeerOrderStatusChangeEventListenerTest {
     @Test
     void listen() {
 
+        /*
+            necessario stubbare la richiesta di cui fornirà una risposta
+         */
         wireMockServer.stubFor(post("/update").willReturn(ok()));
 
         BeerOrder beerOrder = BeerOrder.builder()
                     .orderStatus(OrderStatusEnum.READY)
+                /*
+                    abbiamo la possibilità logicamente di recuperare la porta su cui è esposto il mock
+                 */
                 .orderStatusCallbackUrl("http://localhost:" + wireMockServer.port() + "/update")
                 .createdDate(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
